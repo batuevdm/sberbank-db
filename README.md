@@ -1,1 +1,1 @@
-
+Database connection setting: */api/classes/config.class.php*
