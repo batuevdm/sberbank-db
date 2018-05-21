@@ -24,9 +24,9 @@
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Просмотр всех вкладов <span class="caret"></span></a>
                     <ul class="dropdown-menu">
-                        <li><a href="/view/all">Все</a></li>
-                        <li><a href="/view/all?type=opened">Открытые</a></li>
-                        <li><a href="/view/all?type=closed">Закрытые</a></li>
+                        <li><a href="/view/all">Найти</a></li>
+<!--                        <li><a href="/view/all?type=opened">Открытые</a></li>-->
+<!--                        <li><a href="/view/all?type=closed">Закрытые</a></li>-->
                     </ul>
                 </li>
             </ul>

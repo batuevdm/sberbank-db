@@ -16,6 +16,14 @@ function dType(id) {
     return c['data'];
 }
 
+function getTypes() {
+    var c = $.ajax({
+        url: '/api/deposits_types/all',
+        async: false
+    }).responseText;
+    c = JSON.parse(c);
+    return c['data'];
+}
 
 function modalClient(id) {
     var c = client(id);
@@ -66,7 +74,7 @@ function printDeposits(data) {
             '<td>' + data['data'][i]['End_Date'] + '</td>' +
             '</tr>');
     }
-    if(data['data'].length == 0) {
+    if (data['data'].length == 0) {
         $('#deposits').text('Нет вкладов');
     }
 }
@@ -81,7 +89,7 @@ function allDeposits() {
                 return;
             }
             printDeposits(data);
-})
+        })
         .fail(function () {
             alert('Ошибка получения данных');
         });
@@ -91,7 +99,7 @@ function viewDepositsByPhone() {
     $('#deposits').text('Загрузка...');
     var phone = $("#phone-number").val();
     phone = phone.trim();
-    if(phone == "" || phone == undefined || phone == null) {
+    if (phone == "" || phone == undefined || phone == null) {
         alert('Введите номер телефона!');
         $("#phone-number").focus();
         return;
@@ -115,7 +123,7 @@ function viewDepositsByLs() {
     $('#deposits').text('Загрузка...');
     var ls = $("#ls-number").val();
     ls = ls.trim();
-    if(ls == "" || ls == undefined || ls == null) {
+    if (ls == "" || ls == undefined || ls == null) {
         alert('Введите номер счета!');
         $("#ls-number").focus();
         return;
@@ -160,8 +168,8 @@ function registration() {
             Birthday: b,
             Phone_Number: p
         },
-        success: function(data) {
-            if(data['type'] == 'error') {
+        success: function (data) {
+            if (data['type'] == 'error') {
                 alert(data['desc']);
                 $("#reg-button").removeClass('disabled');
                 return;
@@ -185,12 +193,94 @@ function registration() {
                 .append('Адрес регистрации: ' + c['Address'] + '<br/>')
                 .append('Номер телефона: ' + c['Phone_Number'] + '<br/>');
             $('#modal').modal('show');
+            $('#is-client-yes')
+                .click()
+                .click();
+            $('#ls-number').val(c['Number']);
         },
-        fail: function(data) {
+        fail: function (data) {
             alert('Ошибка');
         }
     });
 }
+
+$('#is-client-no').on('click', function () {
+    if ($('#is-client-no').prop('checked')) {
+        $('#login-form').addClass('hidden');
+        $('#reg-form').removeClass('hidden');
+    }
+});
+
+$('#is-client-yes').on('click', function () {
+    if ($('#is-client-yes').prop('checked')) {
+        $('#reg-form').addClass('hidden');
+        $('#login-form').removeClass('hidden');
+    }
+});
+
+$("#next-btn").on('click', function () {
+    var types = getTypes();
+    var c = client($('#ls-number').val());
+    if(c == null) {
+        alert('Такой номер лицевого счета не найден!');
+        return;
+    }
+    $("#fio").val(c['Last_Name'] + ' ' + c['First_Name'] + ' ' + c['Middle_Name']);
+    $('#type').text('');
+    for (var i = 0; i < types.length; i++) {
+        $("#type")
+            .append('<option value="' + types[i]['ID'] + '">' + types[i]['Name'] + '</option>');
+    }
+    $('#ls-number-d').val($('#ls-number').val());
+    $('#login-form').addClass('hidden');
+    $('#q-form').addClass('hidden');
+    $('#deposit-form').removeClass('hidden');
+    typeInformation(1);
+});
+
+$('#open-deposit').on('click', function () {
+    $.ajax({
+        url: '/api/deposits/open',
+        data: {
+            Client_Number: $("#ls-number-d").val(),
+            Sum: $("#sum").val(),
+            Type: $("#type").val(),
+            Date: $("#date").val()
+        },
+        success: function (data) {
+            if (data['type'] == 'error') {
+                alert(data['desc']);
+                $("#reg-button").removeClass('disabled');
+                return;
+            }
+
+            console.log(data);
+
+            alert('Вклад успешно открыт!\nСейчас произойдет перенаправление к списку Ваших вкладов');
+            location.href = '/search/client_number?number=' + $("#ls-number-d").val();
+        },
+        fail: function (data) {
+            alert('Ошибка');
+        }
+    });
+});
+
+function typeInformation(id) {
+    var t = dType(id);
+    var isAdd = t['Is_Add'] == 0 ? 'Нет' : 'Да';
+    var isSubstract = t['Is_Substract'] == 0 ? 'Нет' : 'Да';
+    $('#type-information')
+        .text('')
+        .append('Проценты в год: ' + t['Percents_In_Year'] + '%<br/>')
+        .append('Минимальная сумма: ' + t['Min_Sum'] + ' ₽<br/>')
+        .append('Максимальная сумма: ' + t['Max_Sum'] + ' ₽<br/>')
+        .append('Возможность пополнения: ' + isAdd + '<br/>')
+        .append('Возможность снятия: ' + isSubstract + '<br/>');
+}
+
+$('#type').on('change', function() {
+   typeInformation($(this).val());
+});
 
 $(document).ready(function () {
 

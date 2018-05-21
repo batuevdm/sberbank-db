@@ -151,12 +151,11 @@ switch ($request[1]) {
                                             extract($q);
                                             $res = $db->sql("INSERT INTO `clients`(`First_Name`, `Last_Name`, `Middle_Name`, `gender`, `Passport_Serie`, `Passport_Number`, `Address`, `Birthday`, `Phone_Number`)
                                               VALUES  ('$First_Name', '$Last_Name', '$Middle_Name', $gender, $Passport_Serie, $Passport_Number, '$Address', '$Birthday', '$Phone_Number')");
-                                            if( $res ) {
+                                            if ($res) {
                                                 $data['type'] = 'success';
                                                 $data['data'] = $db->sql("SELECT * FROM `clients` WHERE `Phone_Number` = '$Phone_Number'");
                                                 $data['data'] = $data['data'][0];
-                                            }
-                                            else {
+                                            } else {
                                                 $data['type'] = 'error';
                                                 $data['desc'] = 'Ошибка записи в БД';
                                             }
@@ -232,6 +231,64 @@ switch ($request[1]) {
                     $data['type'] = 'error';
                     $data['desc'] = 'Клиента с таким номером счета не существует';
                 }
+                break;
+
+            case 'open':
+                $q = array();
+                foreach ($query as $key => $value) {
+                    $q[$key] = $db->escape(htmlspecialchars(trim(urldecode($value))));
+                }
+
+                $sum = (float)$q['Sum'];
+
+                if (isset($q['Client_Number']) &&
+                    isset($q['Sum']) &&
+                    isset($q['Type']) &&
+                    isset($q['Date'])
+                ) {
+                    $type = $db->sql("SELECT * FROM `deposits_types` WHERE `id` = " . $q['Type']);
+                    if ($type) {
+                        $type = $type[0];
+
+                        if ($sum >= $type['Min_Sum'] && $sum <= $type['Max_Sum']) {
+                            if (in_array($q['Date'], [1, 2, 3, 4])) {
+
+                                $startDate = time();
+                                $endDate = $startDate + $q['Date'] * 12 * 30 * 24 * 60 * 60;
+                                $startDate = date('Y-m-d H:i:s', $startDate);
+                                $endDate = date('Y-m-d H:i:s', $endDate);
+
+                                $sql = "INSERT INTO `clients_deposits` (`Client_Number`, `Type`, `Start_Date`, `End_Date`, `Sum`)
+                                  VALUES ({$q['Client_Number']}, {$q['Type']}, '$startDate', '$endDate', {$sum})";
+
+                                //var_dump($sql);
+
+                                $res = $db->sql($sql);
+                                if ($res) {
+                                    $data['type'] = 'success';
+                                } else {
+                                    $data['type'] = 'error';
+                                    $data['desc'] = 'Ошибка записи в БД';
+                                }
+
+
+                            } else {
+                                $data['type'] = 'error';
+                                $data['desc'] = 'Недопустимый срок';
+                            }
+                        } else {
+                            $data['type'] = 'error';
+                            $data['desc'] = 'Недопустимая сумма для этого типа вклада';
+                        }
+                    } else {
+                        $data['type'] = 'error';
+                        $data['desc'] = 'Type not found';
+                    }
+                } else {
+                    $data['type'] = 'error';
+                    $data['desc'] = 'Empty Fields';
+                }
+
                 break;
 
             case 'view':

@@ -5,20 +5,18 @@
         <h1>Открыть вклад</h1>
     </div>
 </div>
-<div class="container">
+<div class="container" id="q-form">
     <div class="row">
         <h3>Вы уже являетесь клиентом этого банка?</h3>
         <div class="radio">
             <label>
-                <input type="radio" id="is-client-yes" value="yes" name="is-client"
-                       onclick="if(this.checked) { $('#login-form').removeClass('hidden'); $('#reg-form').addClass('hidden'); }"/>
+                <input type="radio" id="is-client-yes" value="yes" name="is-client"/>
                 Да
             </label>
         </div>
         <div class="radio">
             <label>
-                <input type="radio" id="is-client-no" value="no" name="is-client"
-                       onclick="if(this.checked) { $('#reg-form').removeClass('hidden'); $('#login-form').addClass('hidden'); }"/>
+                <input type="radio" id="is-client-no" value="no" name="is-client"/>
                 Нет
             </label>
         </div>
@@ -30,11 +28,11 @@
         <h3>Вход</h3>
         <div class="form-group">
             <label for="ls-number" class="control-label">Номер лицевого счета</label>
-            <input type="text" class="form-control" id="ls-number" placeholder="12345...">
+            <input type="number" class="form-control" id="ls-number" placeholder="12345...">
         </div>
         <div class="form-group">
             <div>
-                <button type="submit" class="btn btn-default">Далее</button>
+                <button type="button" id="next-btn" class="btn btn-default">Далее</button>
             </div>
         </div>
     </div>
@@ -83,6 +81,46 @@
         </div>
         <div class="form-group">
             <button class="btn btn-default" style="margin-top: 10px" onclick="registration()" id="reg-button">Далее</button>
+        </div>
+    </div>
+</div>
+<div class="container hidden" id="deposit-form">
+    <div class="row">
+        <h3>Открытие вклада</h3>
+        <div class="form-group">
+            <label for="ls-number-d" class="control-label">Номер лицевого счета</label>
+            <input type="text" class="form-control" id="ls-number-d" readonly="readonly">
+        </div>
+        <div class="form-group">
+            <label for="fio" class="control-label">ФИО</label>
+            <input type="text" class="form-control" id="fio" readonly="readonly">
+        </div>
+        <div class="form-group">
+            <label for="sum" class="control-label">Сумма вклада (в рублях)</label>
+            <input type="text" class="form-control" id="sum">
+        </div>
+        <div class="form-group">
+            <label for="type" class="control-label">Тип вклада</label>
+            <select class="form-control" id="type">
+
+            </select>
+        </div>
+        <div class="alert alert-success" id="type-information">
+
+        </div>
+        <div class="form-group">
+            <label for="date" class="control-label">Срок</label>
+            <select class="form-control" id="date">
+                <option value="1">1 год</option>
+                <option value="2">2 года</option>
+                <option value="3">3 года</option>
+                <option value="4">4 года</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <div>
+                <button id="open-deposit" class="btn btn-default">Открыть</button>
+            </div>
         </div>
     </div>
 </div>

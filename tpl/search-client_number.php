@@ -34,4 +34,13 @@
     </div>
 </div>
 
+<?php if(isset($query['number'])): ?>
+    <script>
+        window.onload = function () {
+            $("#ls-number").val('<?php echo $query['number']; ?>');
+            viewDepositsByLs();
+        };
+    </script>
+<?php endif; ?>
+
 <?php require_once 'footer.php' ?>
