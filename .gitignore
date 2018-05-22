@@ -1,4 +1,4 @@
 .idea
 .idea\*
-temp
-api\temp
+temp\*
+api\temp\*
