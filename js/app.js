@@ -239,7 +239,7 @@ $('#is-client-yes').on('click', function () {
 $("#next-btn").on('click', function () {
     var types = getTypes();
     var c = login($('#ls-number').val(), $('#ls-password').val());
-    if( c['type'] == 'error' ) {
+    if (c['type'] == 'error') {
         alert(c['desc']);
         return;
     }
@@ -299,8 +299,8 @@ function typeInformation(id) {
         .append('Возможность снятия: ' + isSubstract + '<br/>');
 }
 
-$('#type').on('change', function() {
-   typeInformation($(this).val());
+$('#type').on('change', function () {
+    typeInformation($(this).val());
 });
 
 $(document).ready(function () {

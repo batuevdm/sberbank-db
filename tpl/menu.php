@@ -21,17 +21,20 @@
                         <li><a href="/search/client_number">По номеру лицевого счета</a></li>
                     </ul>
                 </li>
-                <li class="dropdown">
+                <!--<li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Просмотр всех вкладов <span class="caret"></span></a>
                     <ul class="dropdown-menu">
                         <li><a href="/view/all">Найти</a></li>
-<!--                        <li><a href="/view/all?type=opened">Открытые</a></li>-->
-<!--                        <li><a href="/view/all?type=closed">Закрытые</a></li>-->
+                        <li><a href="/view/all?type=opened">Открытые</a></li>
+                        <li><a href="/view/all?type=closed">Закрытые</a></li>
                     </ul>
-                </li>
+                </li>-->
             </ul>
             <ul class="nav navbar-nav navbar-right">
                 <li><a href="/deposit/new">Открыть новый вклад</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="/deposit/new?do=reg">Регистрация</a></li>
             </ul>
         </div><!-- /.navbar-collapse -->
 
