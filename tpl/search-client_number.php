@@ -10,6 +10,10 @@
         <span class="help-block">Введите свой номер счета для просмотра Ваших вкладов</span>
     </div>
     <div class="row">
+        <label for="ls-password">Пароль</label>
+        <input type="password" class="form-control" placeholder="" id="ls-password">
+    </div>
+    <div class="row" style="margin-top: 20px;">
         <button class="btn btn-default" onclick="viewDepositsByLs()">Поиск</button>
     </div>
 </div>
@@ -38,7 +42,8 @@
     <script>
         window.onload = function () {
             $("#ls-number").val('<?php echo $query['number']; ?>');
-            viewDepositsByLs();
+            //viewDepositsByLs();
+            $("#ls-password").focus();
         };
     </script>
 <?php endif; ?>

@@ -7,6 +7,20 @@ function client(id) {
     return c['data'];
 }
 
+function login(number, password) {
+    var c = $.ajax({
+        url: '/api/clients/login',
+        data: {
+            Number: number,
+            Password: password
+        },
+        async: false
+    }).responseText;
+    c = JSON.parse(c);
+    console.log(c);
+    return c;
+}
+
 function dType(id) {
     var c = $.ajax({
         url: '/api/deposits_types/get/' + id,
@@ -98,6 +112,7 @@ function allDeposits() {
 function viewDepositsByPhone() {
     $('#deposits').text('Загрузка...');
     var phone = $("#phone-number").val();
+    var password = $("#ls-password").val();
     phone = phone.trim();
     if (phone == "" || phone == undefined || phone == null) {
         alert('Введите номер телефона!');
@@ -105,7 +120,7 @@ function viewDepositsByPhone() {
         return;
     }
     $("#table-container").css('display', 'block');
-    $.ajax('/api/deposits/phone/' + parseInt(phone))
+    $.ajax('/api/deposits/phone/' + parseInt(phone) + '/' + encodeURIComponent(password))
         .done(function (data) {
             if (data['type'] == 'error') {
                 alert(data['desc']);
@@ -122,6 +137,7 @@ function viewDepositsByPhone() {
 function viewDepositsByLs() {
     $('#deposits').text('Загрузка...');
     var ls = $("#ls-number").val();
+    var password = $("#ls-password").val();
     ls = ls.trim();
     if (ls == "" || ls == undefined || ls == null) {
         alert('Введите номер счета!');
@@ -129,7 +145,7 @@ function viewDepositsByLs() {
         return;
     }
     $("#table-container").css('display', 'block');
-    $.ajax('/api/deposits/ls/' + parseInt(ls))
+    $.ajax('/api/deposits/ls/' + parseInt(ls) + '/' + encodeURIComponent(password))
         .done(function (data) {
             if (data['type'] == 'error') {
                 alert(data['desc']);
@@ -154,6 +170,7 @@ function registration() {
     var a = $("#Address").val();
     var b = $("#Birthday").val();
     var p = $("#Phone_Number").val();
+    var pw = $("#Password").val();
 
     $.ajax({
         url: '/api/clients/reg',
@@ -166,7 +183,8 @@ function registration() {
             Passport_Number: pn,
             Address: a,
             Birthday: b,
-            Phone_Number: p
+            Phone_Number: p,
+            Password: pw
         },
         success: function (data) {
             if (data['type'] == 'error') {
@@ -220,12 +238,14 @@ $('#is-client-yes').on('click', function () {
 
 $("#next-btn").on('click', function () {
     var types = getTypes();
-    var c = client($('#ls-number').val());
-    if(c == null) {
-        alert('Такой номер лицевого счета не найден!');
+    var c = login($('#ls-number').val(), $('#ls-password').val());
+    if( c['type'] == 'error' ) {
+        alert(c['desc']);
         return;
     }
+    c = c['data'];
     $("#fio").val(c['Last_Name'] + ' ' + c['First_Name'] + ' ' + c['Middle_Name']);
+    $("#ls-password-d").val(c['Password']);
     $('#type').text('');
     for (var i = 0; i < types.length; i++) {
         $("#type")
@@ -245,7 +265,8 @@ $('#open-deposit').on('click', function () {
             Client_Number: $("#ls-number-d").val(),
             Sum: $("#sum").val(),
             Type: $("#type").val(),
-            Date: $("#date").val()
+            Date: $("#date").val(),
+            Password: $("#ls-password-d").val()
         },
         success: function (data) {
             if (data['type'] == 'error') {

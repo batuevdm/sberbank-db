@@ -105,6 +105,31 @@ switch ($request[1]) {
                 $data['data'] = $data['data'][0];
                 break;
 
+            case 'login':
+                $q = array();
+                foreach ($query as $key => $value) {
+                    $q[$key] = $db->escape(htmlspecialchars(trim(urldecode($value))));
+                }
+
+                if (isset($q['Number']) && isset($q['Password'])) {
+
+                    extract($q);
+                    $res = $db->sql("SELECT * FROM `clients` WHERE `Number` = $Number AND `Password` = '$Password'");
+                    if ($res) {
+                        $data['type'] = 'success';
+                        $data['data'] = $res[0];
+                    } else {
+                        $data['type'] = 'error';
+                        $data['desc'] = 'Неверные данные для входа';
+                    }
+
+                } else {
+                    $data['type'] = 'error';
+                    $data['desc'] = 'Empty Fields';
+                }
+
+                break;
+
             case 'view':
                 $clients = $db->sql("SELECT * FROM `clients`");
                 _view($clients);
@@ -125,64 +150,71 @@ switch ($request[1]) {
                     isset($q['Passport_Number']) &&
                     isset($q['Address']) &&
                     isset($q['Birthday']) &&
-                    isset($q['Phone_Number'])
+                    isset($q['Phone_Number']) &&
+                    isset($q['Password'])
                 ) {
                     if (strlen($q['First_Name']) > 1 && strlen($q['Last_Name']) > 1) {
 
-                        if (strlen($q['Passport_Serie']) == 4 && strlen($q['Passport_Number']) == 6) {
+                        if (strlen($q['Password']) > 4 && strlen($q['Password']) <= 100) {
 
-                            if (strlen($q['Address']) > 5 && strlen($q['Birthday']) == 10) {
+                            if (strlen($q['Passport_Serie']) == 4 && strlen($q['Passport_Number']) == 6) {
 
-                                if (strlen($q['Phone_Number']) == 11) {
+                                if (strlen($q['Address']) > 5 && strlen($q['Birthday']) == 10) {
 
-                                    $phone = $q['Phone_Number'];
+                                    if (strlen($q['Phone_Number']) == 11) {
 
-                                    $res = $db->sql("SELECT COUNT(*) FROM `clients` WHERE `Phone_Number` = '$phone'");
+                                        $phone = $q['Phone_Number'];
 
-                                    if ($res[0]['COUNT(*)'] < 1) {
-
-                                        $serie = $q['Passport_Serie'];
-                                        $number = $q['Passport_Number'];
-
-                                        $res = $db->sql("SELECT COUNT(*) FROM `clients` WHERE `Passport_Serie` = $serie AND `Passport_Number` = $number");
+                                        $res = $db->sql("SELECT COUNT(*) FROM `clients` WHERE `Phone_Number` = '$phone'");
 
                                         if ($res[0]['COUNT(*)'] < 1) {
 
-                                            extract($q);
-                                            $res = $db->sql("INSERT INTO `clients`(`First_Name`, `Last_Name`, `Middle_Name`, `gender`, `Passport_Serie`, `Passport_Number`, `Address`, `Birthday`, `Phone_Number`)
-                                              VALUES  ('$First_Name', '$Last_Name', '$Middle_Name', $gender, $Passport_Serie, $Passport_Number, '$Address', '$Birthday', '$Phone_Number')");
-                                            if ($res) {
-                                                $data['type'] = 'success';
-                                                $data['data'] = $db->sql("SELECT * FROM `clients` WHERE `Phone_Number` = '$Phone_Number'");
-                                                $data['data'] = $data['data'][0];
+                                            $serie = $q['Passport_Serie'];
+                                            $number = $q['Passport_Number'];
+
+                                            $res = $db->sql("SELECT COUNT(*) FROM `clients` WHERE `Passport_Serie` = $serie AND `Passport_Number` = $number");
+
+                                            if ($res[0]['COUNT(*)'] < 1) {
+
+                                                extract($q);
+                                                $res = $db->sql("INSERT INTO `clients`(`Password`, `First_Name`, `Last_Name`, `Middle_Name`, `gender`, `Passport_Serie`, `Passport_Number`, `Address`, `Birthday`, `Phone_Number`)
+                                              VALUES  ('$Password', '$First_Name', '$Last_Name', '$Middle_Name', $gender, $Passport_Serie, $Passport_Number, '$Address', '$Birthday', '$Phone_Number')");
+                                                if ($res) {
+                                                    $data['type'] = 'success';
+                                                    $data['data'] = $db->sql("SELECT * FROM `clients` WHERE `Phone_Number` = '$Phone_Number'");
+                                                    $data['data'] = $data['data'][0];
+                                                } else {
+                                                    $data['type'] = 'error';
+                                                    $data['desc'] = 'Ошибка записи в БД';
+                                                }
+
                                             } else {
                                                 $data['type'] = 'error';
-                                                $data['desc'] = 'Ошибка записи в БД';
+                                                $data['desc'] = 'Клиент с такими паспортными данными уже зарегистрирован';
                                             }
 
                                         } else {
                                             $data['type'] = 'error';
-                                            $data['desc'] = 'Клиент с такими паспортными данными уже зарегистрирован';
+                                            $data['desc'] = 'Клиент с таким номером телефона уже зарегистрирован';
                                         }
 
                                     } else {
                                         $data['type'] = 'error';
-                                        $data['desc'] = 'Клиент с таким номером телефона уже зарегистрирован';
+                                        $data['desc'] = 'Номер телефона должен содержать 11 символов';
                                     }
 
                                 } else {
                                     $data['type'] = 'error';
-                                    $data['desc'] = 'Номер телефона должен содержать 11 символов';
+                                    $data['desc'] = 'Введите адрес и дату рождения';
                                 }
 
                             } else {
                                 $data['type'] = 'error';
-                                $data['desc'] = 'Введите адрес и дату рождения';
+                                $data['desc'] = 'Неверно заполнены серия или номер паспорта';
                             }
-
                         } else {
                             $data['type'] = 'error';
-                            $data['desc'] = 'Неверно заполнены серия или номер паспорта';
+                            $data['desc'] = 'Пароль должен быть от 5 до 100 символов';
                         }
                     } else {
                         $data['type'] = 'error';
@@ -211,25 +243,25 @@ switch ($request[1]) {
 
             case 'phone':
                 $data['type'] = 'success';
-                $clientId = $db->sql("SELECT `Number` FROM `clients` WHERE `Phone_Number` = '" . $db->escape($request[3]) . "';");
+                $clientId = $db->sql("SELECT `Number` FROM `clients` WHERE `Phone_Number` = '" . $db->escape($request[3]) . "' AND `Password` = '" . $db->escape($request[4]) . "';");
                 if ($clientId) {
                     $clientId = $clientId[0]['Number'];
                     $data['data'] = addSum($db->sql("SELECT * FROM `clients_deposits` WHERE `Client_Number` = " . $clientId . ";"));
                 } else {
                     $data['type'] = 'error';
-                    $data['desc'] = 'Клиента с таким номером телефона не существует';
+                    $data['desc'] = 'Клиента с таким номером телефона и паролем не существует';
                 }
                 break;
 
             case 'ls':
                 $data['type'] = 'success';
-                $clientId = $db->sql("SELECT `Number` FROM `clients` WHERE `Number` = '" . $db->escape($request[3]) . "';");
+                $clientId = $db->sql("SELECT `Number` FROM `clients` WHERE `Number` = '" . $db->escape($request[3]) . "' AND `Password` = '" . $db->escape($request[4]) . "';");
                 if ($clientId) {
                     $clientId = (int)$db->escape($request[3]);
                     $data['data'] = addSum($db->sql("SELECT * FROM `clients_deposits` WHERE `Client_Number` = " . $clientId . ";"));
                 } else {
                     $data['type'] = 'error';
-                    $data['desc'] = 'Клиента с таким номером счета не существует';
+                    $data['desc'] = 'Клиента с таким номером счета и паролем не существует';
                 }
                 break;
 
@@ -244,45 +276,50 @@ switch ($request[1]) {
                 if (isset($q['Client_Number']) &&
                     isset($q['Sum']) &&
                     isset($q['Type']) &&
-                    isset($q['Date'])
+                    isset($q['Date']) &&
+                    isset($q['Password'])
                 ) {
-                    $type = $db->sql("SELECT * FROM `deposits_types` WHERE `id` = " . $q['Type']);
-                    if ($type) {
-                        $type = $type[0];
+                    $res = $db->sql("SELECT * FROM `clients` WHERE `Number` = {$q['Client_Number']} AND `Password` = '{$q['Password']}'");
+                    if ($res) {
+                        $type = $db->sql("SELECT * FROM `deposits_types` WHERE `id` = " . $q['Type']);
+                        if ($type) {
+                            $type = $type[0];
 
-                        if ($sum >= $type['Min_Sum'] && $sum <= $type['Max_Sum']) {
-                            if (in_array($q['Date'], [1, 2, 3, 4])) {
+                            if ($sum >= $type['Min_Sum'] && $sum <= $type['Max_Sum']) {
+                                if (in_array($q['Date'], [1, 2, 3, 4])) {
 
-                                $startDate = time();
-                                $endDate = $startDate + $q['Date'] * 12 * 30 * 24 * 60 * 60;
-                                $startDate = date('Y-m-d H:i:s', $startDate);
-                                $endDate = date('Y-m-d H:i:s', $endDate);
+                                    $startDate = time();
+                                    $endDate = $startDate + $q['Date'] * 12 * 30 * 24 * 60 * 60;
+                                    $startDate = date('Y-m-d H:i:s', $startDate);
+                                    $endDate = date('Y-m-d H:i:s', $endDate);
 
-                                $sql = "INSERT INTO `clients_deposits` (`Client_Number`, `Type`, `Start_Date`, `End_Date`, `Sum`)
+                                    $sql = "INSERT INTO `clients_deposits` (`Client_Number`, `Type`, `Start_Date`, `End_Date`, `Sum`)
                                   VALUES ({$q['Client_Number']}, {$q['Type']}, '$startDate', '$endDate', {$sum})";
 
-                                //var_dump($sql);
+                                    $res = $db->sql($sql);
+                                    if ($res) {
+                                        $data['type'] = 'success';
+                                    } else {
+                                        $data['type'] = 'error';
+                                        $data['desc'] = 'Ошибка записи в БД';
+                                    }
 
-                                $res = $db->sql($sql);
-                                if ($res) {
-                                    $data['type'] = 'success';
+
                                 } else {
                                     $data['type'] = 'error';
-                                    $data['desc'] = 'Ошибка записи в БД';
+                                    $data['desc'] = 'Недопустимый срок';
                                 }
-
-
                             } else {
                                 $data['type'] = 'error';
-                                $data['desc'] = 'Недопустимый срок';
+                                $data['desc'] = 'Недопустимая сумма для этого типа вклада';
                             }
                         } else {
                             $data['type'] = 'error';
-                            $data['desc'] = 'Недопустимая сумма для этого типа вклада';
+                            $data['desc'] = 'Type not found';
                         }
                     } else {
                         $data['type'] = 'error';
-                        $data['desc'] = 'Type not found';
+                        $data['desc'] = 'Неверные данные для входа';
                     }
                 } else {
                     $data['type'] = 'error';

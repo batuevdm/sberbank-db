@@ -10,6 +10,10 @@
         <span class="help-block">Введите свой номер телефона для просмотра Ваших вкладов</span>
     </div>
     <div class="row">
+        <label for="ls-password">Пароль</label>
+        <input type="password" class="form-control" placeholder="" id="ls-password">
+    </div>
+    <div class="row" style="margin-top: 20px;">
         <button class="btn btn-default" onclick="viewDepositsByPhone()">Поиск</button>
     </div>
 </div>

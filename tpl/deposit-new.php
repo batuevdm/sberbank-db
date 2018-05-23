@@ -31,6 +31,10 @@
             <input type="number" class="form-control" id="ls-number" placeholder="12345...">
         </div>
         <div class="form-group">
+            <label for="ls-password" class="control-label">Пароль</label>
+            <input type="password" class="form-control" id="ls-password" placeholder="">
+        </div>
+        <div class="form-group">
             <div>
                 <button type="button" id="next-btn" class="btn btn-default">Далее</button>
             </div>
@@ -80,6 +84,10 @@
             <input type="text" class="form-control" id="Phone_Number" placeholder="89XXXXXXXXX">
         </div>
         <div class="form-group">
+            <label for="Password" class="control-label">Пароль</label>
+            <input type="password" class="form-control" id="Password" placeholder="От 5 до 100 символов">
+        </div>
+        <div class="form-group">
             <button class="btn btn-default" style="margin-top: 10px" onclick="registration()" id="reg-button">Далее</button>
         </div>
     </div>
@@ -95,6 +103,7 @@
             <label for="fio" class="control-label">ФИО</label>
             <input type="text" class="form-control" id="fio" readonly="readonly">
         </div>
+        <input type="hidden" id="ls-password-d">
         <div class="form-group">
             <label for="sum" class="control-label">Сумма вклада (в рублях)</label>
             <input type="text" class="form-control" id="sum">
